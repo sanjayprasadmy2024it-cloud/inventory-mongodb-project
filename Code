@@ -1,0 +1,150 @@
+use inventoryDB
+switched to db inventoryDB
+db.createCollection("temp_inventory")
+{ ok: 1 }
+db.temp_inventory.drop()
+true
+db.createCollection("users", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["name", "userId", "role"],
+      properties: {
+        name: { bsonType: "string" },
+        userId: { bsonType: "string" },
+        role: { bsonType: "string" },
+        age: { bsonType: ["int", "null"] },
+        active: { bsonType: "bool" }
+      }
+    }
+  }
+})
+{ ok: 1 }
+db.users.insertOne({ name: "Sanjay", userId: "U001", role: "Manager", age: 21, active: true })
+{
+  acknowledged: true,
+  insertedId: ObjectId('69cb8f7b7a4167dd24718032')
+}
+db.users.insertOne({ name: "Admin", userId: "U002", role: "Admin", age: 25, active: true })
+{
+  acknowledged: true,
+  insertedId: ObjectId('69cb8f847a4167dd24718033')
+}
+db.createCollection("products", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["productName", "category", "price", "stockQuantity"],
+      properties: {
+        productName: { bsonType: "string", minLength: 3, maxLength: 100 },
+        category: { enum: ["Electronics", "Clothing", "Books", "Home Appliances"] },
+        price: { bsonType: "number", minimum: 100 },
+        stockQuantity: { bsonType: "int", minimum: 0 },
+        sku: { bsonType: ["string", "null"] }
+      }
+    }
+  }
+})
+{ ok: 1 }
+db.products.insertOne({ productName: "Laptop", category: "Electronics", price: 55000, stockQuantity: 10, sku: "EL2025LP" })
+{
+  acknowledged: true,
+  insertedId: ObjectId('69cb8f9a7a4167dd24718034')
+}
+db.products.insertOne({ productName: "Shirt", category: "Clothing", price: 1200, stockQuantity: 25, sku: "CL2025SH" })
+{
+  acknowledged: true,
+  insertedId: ObjectId('69cb8fa27a4167dd24718035')
+}
+db.products.insertOne({ productName: "Book", category: "Books", price: 300, stockQuantity: 50, sku: "BK2025BK" })
+{
+  acknowledged: true,
+  insertedId: ObjectId('69cb8faa7a4167dd24718036')
+}
+db.createCollection("employees")
+{ ok: 1 }
+db.runCommand({
+  collMod: "employees",
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["empId", "name", "department", "salary"],
+      properties: {
+        empId: { bsonType: "string", pattern: "^EMP[0-9]{5}$" },
+        name: { bsonType: "string", minLength: 3 },
+        department: { enum: ["IT", "HR", "Finance", "Marketing"] },
+        salary: { bsonType: "number", minimum: 25000 }
+      }
+    }
+  },
+  validationLevel: "moderate"
+})
+{ ok: 1 }
+db.employees.insertOne({ empId: "EMP00001", name: "Rahul", department: "IT", salary: 40000 })
+{
+  acknowledged: true,
+  insertedId: ObjectId('69cb8fcc7a4167dd24718037')
+}
+db.employees.insertOne({ empId: "EMP00002", name: "Kumar", department: "Finance", salary: 35000 })
+{
+  acknowledged: true,
+  insertedId: ObjectId('69cb8fd57a4167dd24718038')
+}
+db.products.find()
+{
+  _id: ObjectId('69cb8f9a7a4167dd24718034'),
+  productName: 'Laptop',
+  category: 'Electronics',
+  price: 55000,
+  stockQuantity: 10,
+  sku: 'EL2025LP'
+}
+{
+  _id: ObjectId('69cb8fa27a4167dd24718035'),
+  productName: 'Shirt',
+  category: 'Clothing',
+  price: 1200,
+  stockQuantity: 25,
+  sku: 'CL2025SH'
+}
+{
+  _id: ObjectId('69cb8faa7a4167dd24718036'),
+  productName: 'Book',
+  category: 'Books',
+  price: 300,
+  stockQuantity: 50,
+  sku: 'BK2025BK'
+}
+db.users.find()
+{
+  _id: ObjectId('69cb8f7b7a4167dd24718032'),
+  name: 'Sanjay',
+  userId: 'U001',
+  role: 'Manager',
+  age: 21,
+  active: true
+}
+{
+  _id: ObjectId('69cb8f847a4167dd24718033'),
+  name: 'Admin',
+  userId: 'U002',
+  role: 'Admin',
+  age: 25,
+  active: true
+}
+db.employees.find()
+{
+  _id: ObjectId('69cb8fcc7a4167dd24718037'),
+  empId: 'EMP00001',
+  name: 'Rahul',
+  department: 'IT',
+  salary: 40000
+}
+{
+  _id: ObjectId('69cb8fd57a4167dd24718038'),
+  empId: 'EMP00002',
+  name: 'Kumar',
+  department: 'Finance',
+  salary: 35000
+}
+db.getCollectionInfos({ name: "products" })
